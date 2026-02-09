@@ -190,6 +190,37 @@ GPIO12 ── R6 (100R) ── DIN (WS2812B)
 DOUT (WS2812B) ── NC (nur 1 LED)
 ```
 
+### 9. EMC / HF-Schutz (wichtig fuer Amateurfunk-Umgebung!)
+
+```
+Audio-Leitungen (RJ45 Pin 1+2):
+  Line In:  RJ45 ── FB1 (Ferrite 600R@100MHz) ── C_LP (1nF) ── ES8388 LINPUT1
+  Line Out: ES8388 LOUT1 ── FB2 (Ferrite 600R@100MHz) ── C_LP (1nF) ── RJ45
+
+PTT / COS (RJ45 Pin 3+4):
+  PTT:  2N7002 Drain ── FB3 (Ferrite) ── RJ45 Pin 3
+  COS:  RJ45 Pin 4 ── FB4 (Ferrite) ── C_LP (100pF) ── GPIO11
+
+CAT UART (RJ45 Pin 5+6):
+  TX: GPIO17 ── FB5 (Ferrite) ── RJ45 Pin 5
+  RX: RJ45 Pin 6 ── FB6 (Ferrite) ── C (100pF) ── GPIO18
+
+Stromversorgung:
+  5V Rail:  ── FB7 (Ferrite 1A) ── ESP32 VDD
+  3.3V:     ── FB8 (Ferrite 1A) ── ES8388 AVDD
+  DC Input: Schottky + TVS (SMBJ24A) fuer Ueberspannungsschutz
+
+USB:
+  D+/D-: Bereits geschuetzt durch USBLC6-2SC6 (D2)
+
+Ground:
+  Durchgehende Ground-Plane auf Bottom-Layer
+  Analog-GND und Digital-GND getrennt, Sternpunkt unter AMS1117
+  Keine Ground-Plane unter ESP32-S3 Antenne!
+
+Ferrite Beads: 0402 SMD, 600 Ohm @ 100MHz (LCSC: C1015)
+```
+
 ## PCB Layout Hinweise
 
 - **Groesse**: 60 x 40 mm, 2-Layer
@@ -200,6 +231,13 @@ DOUT (WS2812B) ── NC (nur 1 LED)
 - **Analog-Bereich** (ES8388 Audio): Getrennte Ground-Plane, sternfoermig verbunden
 - **USB-Leitungen**: Differentiell routen, 90 Ohm Impedanz, so kurz wie moeglich
 - **Decoupling Caps**: Direkt an den IC-Pins platzieren
+- **Ground Plane**: Durchgehende Kupferflaeche auf Bottom-Layer, KEINE Schlitze unter Signalleitungen
+- **Analog/Digital Trennung**: ES8388 Analog-Bereich eigene Ground-Zone, Sternpunkt-Verbindung
+- **Antenne frei**: Keine Kupferflaeche unter ESP32-S3 Antenne (letzte 5mm des Moduls)
+- **Ferrite Beads**: Alle RJ45-Leitungen gefiltert, direkt am Stecker platzieren
+- **Audio-Routing**: RX/TX Audio getrennt, nicht parallel fuehren, kurze Wege
+- **Buck-Converter**: XL1509 + Induktor moeglichst weit weg vom ES8388, eigene Ground-Insel
+- **Vias**: Ground-Vias um empfindliche Bereiche (ES8388) als HF-Zaun
 
 ## Pinbelegung Uebersicht
 
