@@ -3,19 +3,28 @@
 ## Block-Diagramm
 
 ```
-                    +5V (USB VBUS)
-                         │
-                    ┌────┴────┐
-                    │AMS1117  │
-                    │  3.3V   │
-                    └────┬────┘
-                         │ 3.3V
-          ┌──────────────┼──────────────────────────┐
-          │              │                          │
-   ┌──────┴──────┐  ┌───┴────────┐          ┌──────┴──────┐
+   USB-C (5V)                    DC Eingang (5-24V)
+       │                              │
+       │ VBUS                    ┌────┴─────┐
+       │                         │ XL1509   │
+       │                         │ Buck→5V  │
+       │                         └────┬─────┘
+       │                              │ 5V
+       └──[D3 Schottky]──┬──[D4 Schottky]──┘
+                          │
+                     5V Rail ──► WS2812B VCC
+                          │
+                    ┌─────┴─────┐
+                    │ AMS1117   │
+                    │  3.3V     │
+                    └─────┬─────┘
+                          │ 3.3V
+          ┌───────────────┼──────────────────────────┐
+          │               │                          │
+   ┌──────┴──────┐  ┌────┴───────┐          ┌───────┴─────┐
    │  ESP32-S3   │  │   ES8388   │          │   WS2812B   │
    │  WROOM-1    │  │   Codec    │          │   RGB LED   │
-   │  N16R8      │  │            │          └──────┬──────┘
+   │  N16R8      │  │            │          └─────────────┘
    │             │  │ Line In ◄──┤◄── RJ45 Pin 1 (RX Audio)
    │ GPIO4 BCK──►├──►──BCK      │
    │ GPIO5 WS───►├──►──WS       │
@@ -39,20 +48,50 @@
    │ GPIO0──────◄├──◄──[SW2 Boot]───GND
    └─────────────┘
 
+   DC Eingang: Schraubklemme 2-Pin (5-24V, z.B. 13.8V Funkgeraet-Netzteil)
    RJ45 Pin 7: +5V (optional, via Polyfuse)
    RJ45 Pin 8: GND
 ```
 
 ## Detailschaltung
 
-### 1. Spannungsversorgung
+### 1. Spannungsversorgung (Dual-Input: USB oder 5-24V DC)
 
 ```
-USB VBUS (+5V) ──┬── C4 (22uF) ──┬── GND
-                 │                │
-                 └── [AMS1117-3.3] ──┬── 3.3V Rail
-                      │              │
-                      GND        C3 (10uF) ── GND
+Quelle A: USB-C VBUS (5V)
+  USB VBUS ── C4 (22uF) ── [D3 Schottky SS34] ──┐
+                                                  │
+Quelle B: DC Eingang (5-24V, z.B. 13.8V)         │
+  DC+ ── C7 (100uF/50V) ──┐                      │
+                           │                      │
+                      ┌────┴────┐                 │
+                      │ XL1509  │ Buck DC-DC      │
+                      │ 5.0E1   │ (4.5-28V→5V)   │
+                      │         │                 │
+                      │ FB─R7─R8│ (fest 5V)       │
+                      │ BST─C8  │ (100nF)         │
+                      │ SW──L1──┤ (33uH Inductor) │
+                      │   C9────┤ (22uF Output)   │
+                      └────┬────┘                 │
+                           │                      │
+                      [D4 Schottky SS34] ─────────┤
+                                                  │
+                                             5V Rail
+                                                  │
+                                        ┌─────────┤
+                                        │         │
+                                    WS2812B   ┌───┴───┐
+                                     VCC      │AMS1117│
+                                              │ 3.3V  │
+                                              └───┬───┘
+                                                  │
+                                             3.3V Rail
+                                                  │
+                                           ESP32 + ES8388
+
+Automatische Umschaltung: Schottky-Dioden (D3, D4) verhindern
+Rueckspeisung. Hoechste Spannung gewinnt. USB allein = OK.
+DC allein = OK. Beides gleichzeitig = auch OK.
 ```
 
 ### 2. ESP32-S3 WROOM-1
