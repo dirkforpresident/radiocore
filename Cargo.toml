@@ -1,0 +1,41 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/radiocore-core",
+    "crates/radiocore-repeater",
+    "crates/radiocore-remote",
+    "crates/radiocore-digimode",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["DO1XX <do1xx@1xx.is>"]
+license = "MIT"
+
+[workspace.dependencies]
+# Audio
+cpal = "0.15"
+ringbuf = "0.4"
+
+# Async
+tokio = { version = "1", features = ["full"] }
+
+# Web
+axum = "0.7"
+tower-http = { version = "0.5", features = ["cors", "fs"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# Serial Port
+serialport = "4"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+anyhow = "1"

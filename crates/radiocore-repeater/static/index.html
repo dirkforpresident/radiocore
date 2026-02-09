@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RadioCore Repeater</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+        .logo span { color: #10b981; }
+        .badge {
+            font-size: 10px;
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+            padding: 2px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .status { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .status .live { color: #10b981; }
+        main { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            padding: 16px;
+        }
+        .card h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 12px;
+        }
+        .meter {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        .meter-fill {
+            height: 100%;
+            background: #10b981;
+            border-radius: 4px;
+            transition: width 0.1s;
+        }
+        .label { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .value { font-size: 24px; font-weight: 600; color: #10b981; }
+        .led {
+            display: inline-block;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #333;
+            margin-right: 8px;
+        }
+        .led.ptt { background: #333; }
+        .led.ptt.active { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .led.sql { background: #333; }
+        .led.sql.active { background: #10b981; box-shadow: 0 0 8px #10b981; }
+        #log {
+            grid-column: 1 / -1;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+        }
+        #log div { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        @media (max-width: 768px) { main { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><span>Radio</span>Core <span class="badge">Repeater</span></div>
+        <div class="status">
+            <span class="live" id="conn-status">CONNECTING...</span>
+            <span id="callsign"></span>
+        </div>
+    </header>
+    <main>
+        <div class="card">
+            <h3>Status</h3>
+            <div><span class="led ptt" id="ptt-led"></span><span class="label">PTT</span></div>
+            <div style="margin-top:8px"><span class="led sql" id="sql-led"></span><span class="label">Squelch</span></div>
+        </div>
+        <div class="card">
+            <h3>Audio Level</h3>
+            <div class="label">RX</div>
+            <div class="meter"><div class="meter-fill" id="rx-meter" style="width:0%"></div></div>
+            <div class="label">TX</div>
+            <div class="meter"><div class="meter-fill" id="tx-meter" style="width:0%"></div></div>
+        </div>
+        <div class="card" id="log"><h3>Log</h3></div>
+    </main>
+    <script>
+        const ws = new WebSocket(`ws://${location.host}/ws`);
+        ws.onopen = () => { document.getElementById('conn-status').textContent = 'LIVE'; };
+        ws.onclose = () => {
+            document.getElementById('conn-status').textContent = 'OFFLINE';
+            document.getElementById('conn-status').style.color = '#ef4444';
+        };
+        ws.onmessage = (e) => {
+            const d = JSON.parse(e.data);
+            if (d.type === 'status') {
+                document.getElementById('ptt-led').className = 'led ptt' + (d.ptt ? ' active' : '');
+                document.getElementById('sql-led').className = 'led sql' + (d.squelch ? ' active' : '');
+                const rx = Math.max(0, Math.min(100, (d.rx_level + 100) * 1.5));
+                const tx = Math.max(0, Math.min(100, (d.tx_level + 100) * 1.5));
+                document.getElementById('rx-meter').style.width = rx + '%';
+                document.getElementById('tx-meter').style.width = tx + '%';
+            }
+        };
+        fetch('/api/status').then(r => r.json()).then(d => {
+            document.getElementById('callsign').textContent = d.callsign;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+callsign = "DO1XX"
+location = "Hamburg"
+
+[audio]
+device = "default"
+sample_rate = 48000
+buffer_size = 128
+rx_gain = 0.0
+tx_gain = 0.0
+# serial_port = "/dev/ttyACM0"
+
+[repeater]
+timeout_seconds = 180
+tail_seconds = 3
+# ctcss_tone = 88.5
+cw_id_interval = 600
+cw_id_text = "DO1XX"
+roger_beep = true
+logic_script = "config/scripts/repeater.lua"
+
+[web]
+port = 8080
+bind = "0.0.0.0"
+auth_enabled = false
+# admin_password = "changeme"
+
+[network]
+enabled = false
+# reflector = "reflector.example.com:5300"
+# talkgroup = "TG-Hamburg"
+opus_bitrate = 64000
+
+[services]
+tts_enabled = false
+tts_engine = "piper"
+weather_enabled = false
+# weather_station = "10147"
+aprs_enabled = false

@@ -1,0 +1,33 @@
+# Rust
+target/
+Cargo.lock
+
+# ESP-IDF
+firmware/build/
+firmware/managed_components/
+firmware/sdkconfig.old
+
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# KiCad
+hardware/*-backups/
+hardware/*.kicad_bak
+hardware/fp-info-cache
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config
+*.local.toml
+config/local.toml

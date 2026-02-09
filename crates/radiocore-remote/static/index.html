@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RadioCore Remote</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+        .logo span { color: #10b981; }
+        .badge {
+            font-size: 10px;
+            background: rgba(59,130,246,0.2);
+            color: #3b82f6;
+            padding: 2px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .status { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .status .live { color: #10b981; }
+        main { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            padding: 16px;
+        }
+        .card h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 12px;
+        }
+        .freq {
+            font-size: 32px;
+            font-weight: 700;
+            color: #10b981;
+            letter-spacing: 2px;
+        }
+        .freq .mhz { font-size: 14px; color: rgba(255,255,255,0.4); }
+        .mode-btn {
+            display: inline-block;
+            padding: 4px 12px;
+            margin: 2px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 3px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .mode-btn.active {
+            background: rgba(16,185,129,0.2);
+            border-color: #10b981;
+            color: #10b981;
+        }
+        .smeter {
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .smeter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #ef4444 100%);
+            border-radius: 4px;
+            transition: width 0.15s;
+        }
+        .ptt-btn {
+            width: 100%;
+            padding: 16px;
+            background: rgba(239,68,68,0.2);
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            color: #ef4444;
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            user-select: none;
+        }
+        .ptt-btn:active, .ptt-btn.active {
+            background: #ef4444;
+            color: #000;
+        }
+        @media (max-width: 768px) { main { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><span>Radio</span>Core <span class="badge">Remote</span></div>
+        <div class="status">
+            <span class="live" id="conn-status">CONNECTING...</span>
+            <span id="callsign"></span>
+        </div>
+    </header>
+    <main>
+        <div class="card">
+            <h3>VFO A</h3>
+            <div class="freq" id="freq">145.500.000 <span class="mhz">MHz</span></div>
+            <div style="margin-top:12px">
+                <button class="mode-btn active">FM</button>
+                <button class="mode-btn">USB</button>
+                <button class="mode-btn">LSB</button>
+                <button class="mode-btn">AM</button>
+                <button class="mode-btn">CW</button>
+            </div>
+        </div>
+        <div class="card">
+            <h3>S-Meter</h3>
+            <div class="smeter"><div class="smeter-fill" id="smeter" style="width:30%"></div></div>
+            <div style="margin-top:12px;font-size:24px;color:#10b981" id="smeter-val">S5</div>
+        </div>
+        <div class="card" style="grid-column:1/-1">
+            <button class="ptt-btn" id="ptt-btn">PTT</button>
+        </div>
+    </main>
+    <script>
+        const ws = new WebSocket(`ws://${location.host}/ws`);
+        ws.onopen = () => { document.getElementById('conn-status').textContent = 'LIVE'; };
+        ws.onclose = () => {
+            document.getElementById('conn-status').textContent = 'OFFLINE';
+            document.getElementById('conn-status').style.color = '#ef4444';
+        };
+        fetch('/api/status').then(r => r.json()).then(d => {
+            document.getElementById('callsign').textContent = d.callsign;
+        });
+        // PTT button (hold to transmit)
+        const pttBtn = document.getElementById('ptt-btn');
+        pttBtn.addEventListener('mousedown', () => { pttBtn.classList.add('active'); ws.send(JSON.stringify({cmd:'ptt',state:true})); });
+        pttBtn.addEventListener('mouseup', () => { pttBtn.classList.remove('active'); ws.send(JSON.stringify({cmd:'ptt',state:false})); });
+        pttBtn.addEventListener('mouseleave', () => { pttBtn.classList.remove('active'); ws.send(JSON.stringify({cmd:'ptt',state:false})); });
+    </script>
+</body>
+</html>
