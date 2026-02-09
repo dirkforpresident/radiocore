@@ -17,9 +17,22 @@
 | 33uH Inductor (Buck) | C339747 | $0.06 | 1 | $0.06 |
 | 100uF/50V Elko (DC In) | C176672 | $0.08 | 1 | $0.08 |
 | Taster (2x) | C318884 | $0.03 | 2 | $0.06 |
+| 3.5mm TRS Klinke (RX/TX) | C17701688 | $0.02 | 2 | $0.04 |
+| Ferrite Bead 600R (EMC) | C76890 | $0.01 | 8 | $0.08 |
+| 1nF Kondensator (Audio LP) | C14442 | $0.001 | 2 | $0.01 |
+| 100pF Kondensator (Digital LP) | C1546 | $0.001 | 3 | $0.01 |
 | Kondensatoren (diverse) | — | ~$0.01 | 16 | $0.16 |
 | Widerstaende (diverse) | — | ~$0.01 | 8 | $0.08 |
-| **BOM Gesamt** | | | | **~$5.35** |
+| **BOM Gesamt (SMD)** | | | | **~$5.49** |
+
+## Nicht bei JLCPCB bestueckt (THT / manuell)
+
+| Bauteil | LCSC | Grund | Preis |
+|---|---|---|---|
+| RJ45 Buchse geschirmt THT | C2683360 | Through-Hole, manuell loeten | ~$0.13 |
+
+RJ45 ist Through-Hole und muss von Hand geloetet werden (1 Bauteil, einfach).
+Die 3.5mm Klinken sind SMD und werden bei JLCPCB bestueckt.
 
 ## PCB + Assembly Kosten (5 Stueck)
 
@@ -35,20 +48,12 @@
 
 | | 5 Stueck | Pro Board |
 |---|---|---|
-| BOM (5x) | $26.75 | $5.35 |
+| BOM SMD (5x) | $27.45 | $5.49 |
+| BOM THT (5x RJ45) | $0.65 | $0.13 |
 | PCB + Assembly | $15.50 | $3.10 |
-| **Zwischensumme** | **$42.25** | **$8.45** |
+| **Zwischensumme** | **$43.60** | **$8.72** |
 | Versand (DHL Express) | ~$20.00 | $4.00 |
-| **Total** | **~$62** | **~$12.45** |
-
-## Nicht bei JLCPCB bestueckt (THT / manuell)
-
-| Bauteil | Grund | Preis |
-|---|---|---|
-| RJ45 Buchse | THT, manuell loeten | ~$0.30 |
-
-RJ45 ist Through-Hole und muss von Hand geloetet werden.
-Alternative: 2x 3.5mm Klinkenbuchsen (SMD, bei JLCPCB bestueckbar).
+| **Total** | **~$64** | **~$12.72** |
 
 ## Stromversorgung
 
@@ -67,7 +72,7 @@ Typische Szenarien:
 
 | Schritt | Dauer |
 |---|---|
-| KiCad Schematic + PCB Layout | 1-2 Tage |
+| EasyEDA Schematic + PCB Layout | 1-2 Tage |
 | JLCPCB Review + Fertigung | 3-5 Tage |
 | Versand (DHL Express) | 5-7 Tage |
 | **Gesamt** | **~10-14 Tage** |

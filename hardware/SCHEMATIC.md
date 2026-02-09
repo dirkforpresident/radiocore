@@ -49,8 +49,23 @@
    └─────────────┘
 
    DC Eingang: Schraubklemme 2-Pin (5-24V, z.B. 13.8V Funkgeraet-Netzteil)
-   RJ45 Pin 7: +5V (optional, via Polyfuse)
-   RJ45 Pin 8: GND
+
+   Anschluesse:
+   [USB-C]  [DC 5-24V]  [RST] [BOOT]        ← Oberseite
+   [RJ45 geschirmt]  ○ RX In  ○ TX Out       ← Unterseite
+    (alle Signale)    3.5mm    3.5mm
+                     (optional, parallel zu RJ45 Audio)
+
+   RJ45 Belegung (T568B Paar-Zuordnung):
+   Pin 1+2 (Paar 1 orange): RX Audio IN  (verdrillt = Stoerschutz)
+   Pin 3+6 (Paar 2 gruen):  TX Audio OUT (verdrillt = Stoerschutz)
+   Pin 4+5 (Paar 3 blau):   PTT + COS
+   Pin 7+8 (Paar 4 braun):  CAT TX + CAT RX
+   Schirm (Metallgehaeuse):  GND
+
+   3.5mm Klinken (optional, parallel zu RJ45):
+   RX In:  Tip=Audio, Ring=NC, Sleeve=GND
+   TX Out: Tip=Audio, Ring=NC, Sleeve=GND
 ```
 
 ## Detailschaltung
