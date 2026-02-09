@@ -46,13 +46,18 @@
    │             │
    │ EN─────────◄├──◄──[SW1 Reset]──GND
    │ GPIO0──────◄├──◄──[SW2 Boot]───GND
+   │             │
+   │ GPIO13─────►├──►──[EXP Header Pin 5]  (Open Collector 1)
+   │ GPIO14─────►├──►──[EXP Header Pin 6]  (Open Collector 2)
+   │ GPIO15─────►├──►──[EXP Header Pin 7]  (Open Collector 3)
+   │ GPIO16─────►├──►──[EXP Header Pin 8]  (Open Collector 4)
    └─────────────┘
 
    DC Eingang: Schraubklemme 2-Pin (5-24V, z.B. 13.8V Funkgeraet-Netzteil)
 
    Anschluesse:
-   [USB-C]  [DC 5-24V]  [RST] [BOOT]        ← Oberseite
-   [RJ45 geschirmt]  ○ RX In  ○ TX Out       ← Unterseite
+   [USB-C]  [DC 5-24V]  [RST] [BOOT]  [EXP 2x5]  ← Oberseite
+   [RJ45 geschirmt]  ○ RX In  ○ TX Out            ← Unterseite
     (alle Signale)    3.5mm    3.5mm
                      (optional, parallel zu RJ45 Audio)
 
@@ -236,11 +241,44 @@ Ground:
 Ferrite Beads: 0402 SMD, 600 Ohm @ 100MHz (LCSC: C1015)
 ```
 
+### 10. Expansion Header (2x5 Pin)
+
+```
+Pin-Belegung (von oben, Beschriftung auf PCB):
+
+    ┌─────┬─────┐
+  1 │ 5V  │ GND │ 2
+    ├─────┼─────┤
+  3 │ SDA │ SCL │ 4     I2C Bus (geteilt mit ES8388)
+    ├─────┼─────┤
+  5 │ IO13│ IO14│ 6     GPIO / Open Collector Out
+    ├─────┼─────┤
+  7 │ IO15│ IO16│ 8     GPIO / Open Collector Out
+    ├─────┼─────┤
+  9 │3.3V │ GND │ 10
+    └─────┴─────┘
+
+GPIOs 13-16: Direkt vom ESP32-S3, 3.3V Logik.
+Fuer Relais/Lasten: Externe MOSFETs (2N7002) auf Erweiterungsboard.
+I2C: Bereits mit 4.7K Pull-Ups von ES8388-Beschaltung.
+5V: Direkt von 5V Rail (max 500mA gesamt inkl. Board).
+3.3V: Vom AMS1117 (max 200mA frei fuer Erweiterungen).
+```
+
+Typische Erweiterungen:
+- Relay Shield 4x/8x (per GPIO oder I2C MCP23017)
+- Rotor-Interface (I2C + PWM)
+- Band-Decoder (I2C MCP23017, BCD-Ausgabe)
+- OLED Display (I2C SSD1306/SH1106)
+- Sensor-Board (I2C ADS1115 fuer SWR/Temperatur/Spannung)
+- Remote Head (I2C Display + Encoder + Taster)
+
 ## PCB Layout Hinweise
 
-- **Groesse**: 60 x 40 mm, 2-Layer
+- **Groesse**: 65 x 45 mm, 2-Layer
 - **USB-C**: An der kurzen Seite oben
 - **RJ45**: An der kurzen Seite unten
+- **Expansion Header**: 2x5 Pin-Header (2.54mm Raster) an der langen Seite, zugaenglich fuer Erweiterungsboards
 - **ESP32-S3 Modul**: Mittig, Antenne zum Rand (keine Kupferflaeche unter Antenne!)
 - **ES8388**: Neben dem ESP32, kurze I2S-Leitungen
 - **Analog-Bereich** (ES8388 Audio): Getrennte Ground-Plane, sternfoermig verbunden
@@ -268,6 +306,10 @@ Ferrite Beads: 0402 SMD, 600 Ohm @ 100MHz (LCSC: C1015)
 | GPIO 10 | PTT OUT | 2N7002 Gate → RJ45 |
 | GPIO 11 | COS IN | RJ45 → Pull-Up |
 | GPIO 12 | LED DATA | WS2812B DIN |
+| GPIO 13 | EXP OUT 1 | Expansion Header Pin 5 |
+| GPIO 14 | EXP OUT 2 | Expansion Header Pin 6 |
+| GPIO 15 | EXP OUT 3 | Expansion Header Pin 7 |
+| GPIO 16 | EXP OUT 4 | Expansion Header Pin 8 |
 | GPIO 17 | CAT TX | RJ45 UART TX |
 | GPIO 18 | CAT RX | RJ45 UART RX |
 | GPIO 19 | USB D- | USB-C |

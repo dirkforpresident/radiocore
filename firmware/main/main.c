@@ -8,7 +8,15 @@
  * Firmware modes (set via serial command or WiFi):
  *   MODE REPEATER  — standalone repeater (COS->PTT, timers, WAV announcements)
  *   MODE DIGIMODE  — USB audio bridge (transparent pass-through)
- *   MODE REMOTE    — USB audio + CAT UART forwarding
+ *   MODE REMOTE    — WebSocket client to cloud, audio + CAT streaming
+ *
+ * Serial commands:
+ *   PTT ON / PTT OFF          — manual PTT control
+ *   SET RX_GAIN <0-24>        — ES8388 input gain (dB)
+ *   SET TX_GAIN <0-24>        — ES8388 output volume (dB)
+ *   EXP <1-4> ON/OFF          — expansion GPIO control
+ *   STATUS                    — JSON status report
+ *   MODE REPEATER/DIGIMODE/REMOTE — switch firmware mode
  *
  * Core 0: Audio (I2S + USB Audio, highest priority)
  * Core 1: USB Serial + Control logic + WiFi
